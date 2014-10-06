@@ -1,10 +1,11 @@
 angular.module('starter.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout,$rootScope) {
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/events");
+	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
 	var auth = new FirebaseSimpleLogin(ref,function(error,user){
 		if(user){
 			$rootScope.user = user
+			getUserColor(user);
 		}
 	});
   // Form data for the login modal
@@ -40,23 +41,44 @@ angular.module('starter.controllers', [])
       $scope.closeLogin();
     }, 1000);
   };
+  
+  //Check to see if the user has already got a color
+  isUserColorExists = function(user,callback){
+			new Firebase('https://scorching-fire-7327.firebaseio.com/usersColor/'+user.uid).once('value', function(snap) {
+			callback(snap.val())
+		});
+	}
+  
+  var getUserColor = function(user){
+	isUserColorExists(user,function(info){
+		if(info == null)
+		{
+			//Colour does not exists
+			var objectToPush = { color : getRandomColor()}
+			ref.child('usersColor/'+$rootScope.user.uid).set(objectToPush);
+			$rootScope.user.color = objectToPush.color;
+		}
+		else
+		{
+			//Colour exists
+			$rootScope.user.color = info.color;
+		}
+	});
+  }
+  
+  //Generate a Random Colour
+  var getRandomColor = function() {
+		var letters = '0123456789ABCDEF'.split('');
+		var color = '#';
+		for (var i = 0; i < 6; i++ ) {
+			color += letters[Math.floor(Math.random() * 16)];
+			}
+		return color;
+	}
 })
 
 .controller('loginCtrl',function($scope,$rootScope,$firebase,$firebaseSimpleLogin){
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
-	$scope.auth = $firebaseSimpleLogin(ref);
-	$rootScope = null;
 	
-	// Open the login modal
-	$scope.login = function() {
-    //$scope.modal.show();
-		$scope.auth.$login('facebook',{
-			rememberMe : false		
-	})};
-	
-	$scope.logout = function(){
-		$scope.auth.$logout()
-	}
 })
 
 .controller('PlaylistsCtrl', function($scope,$firebase,$rootScope,$ionicModal,dateServices) {
@@ -89,7 +111,6 @@ angular.module('starter.controllers', [])
 	
 	//Add Event to calendar function
 	$scope.addEvent = function(date) {
-		
 		//A Check that the given date is not too far ( date < today + 1 month )
 		if(dateServices.isDateExceedDatesLimits(date))
 			return;
@@ -100,12 +121,14 @@ angular.module('starter.controllers', [])
 					 'profileUrl' : $rootScope.user.thirdPartyUserData.picture.data.url,
 					 'uid' : $rootScope.user.uid };
 		event = {
-			title: 'Booked',
+			title:  $rootScope.user.displayName,
 			start: date.toString(),
 			end :  endDate.toString(),
 			allDay:false,
 			unixStartTime:date.getTime(),
 			unixEndTime:endDate.getTime(),
+			backgroundColor : $rootScope.user.color,
+			borderColor : $rootScope.user.color,
 			user: user
 		}
 		
@@ -180,13 +203,16 @@ angular.module('starter.controllers', [])
 					 'profileUrl' : $rootScope.user.thirdPartyUserData.picture.data.url,
 					 'uid' : $rootScope.user.uid };
 		event = {
-			title: 'Booked',
+			title:  $rootScope.user.displayName,
 			start: startTime.toString(),
 			end :  endTime.toString(),
 			allDay:false,
 			unixStartTime:startTime.getTime(),
 			unixEndTime:endTime.getTime(),
+			backgroundColor : $rootScope.user.color,
+			borderColor : $rootScope.user.color,
 			user: user,
+			color : $rootScope.user.color,
 			note : note
 		}
 		
