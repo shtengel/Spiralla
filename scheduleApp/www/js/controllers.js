@@ -59,14 +59,8 @@ angular.module('starter.controllers', [])
 	}
 })
 
-.controller('PlaylistsCtrl', function($scope,$firebase,$rootScope,$ionicModal,dateServices) {
-		//Loading Firebase DB
-		var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/events");
-		
-		var sync = $firebase(ref);
-		
-		var syncEventsArray = sync.$asArray();
-		$scope.events = syncEventsArray;
+.controller('PlaylistsCtrl', function($scope,$firebase,$rootScope,$ionicModal,roomServices) {
+	$scope.events = roomServices.getRoomEventArray(0);
 
 	//Calendar Config
 	$scope.uiConfig = {
@@ -89,31 +83,7 @@ angular.module('starter.controllers', [])
 	
 	//Add Event to calendar function
 	$scope.addEvent = function(date) {
-		
-		//A Check that the given date is not too far ( date < today + 1 month )
-		if(dateServices.isDateExceedDatesLimits(date))
-			return;
-		
-		var endDate = new Date(date.toString())
-		endDate.addHours(1)
-		var user = { 'displayName' : $rootScope.user.displayName,
-					 'profileUrl' : $rootScope.user.thirdPartyUserData.picture.data.url,
-					 'uid' : $rootScope.user.uid };
-		event = {
-			title: 'Booked',
-			start: date.toString(),
-			end :  endDate.toString(),
-			allDay:false,
-			unixStartTime:date.getTime(),
-			unixEndTime:endDate.getTime(),
-			user: user
-		}
-		
-		//A Check that there are no overlapping dates
-		if(dateServices.isTimeAvailable($scope.events,event)){
-			syncEventsArray.$add(event);
-		}
-		
+		roomServices.addEventToRoom(0,date);
 	}
 	
 	$scope.eventSources = [$scope.events]
@@ -132,36 +102,13 @@ angular.module('starter.controllers', [])
 	};
 })
 
-.controller('EventManagerCtrl', function($scope, $stateParams,$firebase,$rootScope,masterServices) {
-		//Loading Firebase DB	
-		var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/events");
-		
-		var sync = $firebase(ref);
-			
-		var syncEventsArray = sync.$asArray();
-
-		$scope.events = syncEventsArray;
-		
-		
+.controller('EventManagerCtrl', function($scope,roomServices) {
+		$scope.events = roomServices.getRoomEventArray(0);
+	
 		//Remove event from calendar function
 		$scope.removeEvent = function(event){
-				//A Check that the event were about to delete is ours
-				if(isMyEvent(event))
-					syncEventsArray.$remove(event);
-				else
-					//if not , master user can do anything
-					masterServices.isMasterUser($rootScope.user,function(userobj){
-						if(userobj != null)
-							syncEventsArray.$remove(event);
-					});
-			}
-			
-		//A Function that returns true is the event given is mine ( according to the fbId )
-		isMyEvent = function(event){
-			if(event.user.uid == $rootScope.user.uid)
-				return true;
-			return false;
-		}
+				roomServices.removeEventFromRoom(0,event);
+		}	
 })
 
 .controller('AddDetailedEventCtrl',function($scope,$firebase,$rootScope,dateServices){
@@ -195,6 +142,72 @@ angular.module('starter.controllers', [])
 			syncEventsArray.$add(event);
 		}
 	}
+})
+
+.factory('roomServices',function(dateServices,$rootScope,$firebase){
+	var service = {};
+	service.ROOM_COUNT = 3;
+	var rooms = {};
+	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	for(i=0;i<service.ROOM_COUNT;i++)
+	{
+		var sync = $firebase(ref.child('events'+i));
+		rooms[i] = sync.$asArray();
+	}
+	
+	service.getRoomEventArray = function(index){
+		return rooms[index];
+	}
+	
+	service.addEventToRoom = function(index,date){
+	
+		//A Check that the given date is not too far ( date < today + 1 month )
+		if(dateServices.isDateExceedDatesLimits(date))
+			return;
+		
+		var endDate = new Date(date.toString())
+		endDate.addHours(1)
+		var user = { 'displayName' : $rootScope.user.displayName,
+					 'profileUrl' : $rootScope.user.thirdPartyUserData.picture.data.url,
+					 'uid' : $rootScope.user.uid };
+		event = {
+			title: 'Booked',
+			start: date.toString(),
+			end :  endDate.toString(),
+			allDay:false,
+			unixStartTime:date.getTime(),
+			unixEndTime:endDate.getTime(),
+			user: user
+		}
+		
+		//A Check that there are no overlapping dates
+		if(dateServices.isTimeAvailable(rooms[index],event)){
+			rooms[index].$add(event);
+		}
+
+	}
+	
+	//Remove event from calendar function
+	service.removeEventFromRoom = function(index,event){
+			//A Check that the event were about to delete is ours
+			if(isMyEvent(event))
+				rooms[index].$remove(event);
+			else
+				//if not , master user can do anything
+				masterServices.isMasterUser($rootScope.user,function(userobj){
+					if(userobj != null)
+						rooms[index].$remove(event);
+				});
+		}
+		
+	//A Function that returns true is the event given is mine ( according to the fbId )
+	isMyEvent = function(event){
+		if(event.user.uid == $rootScope.user.uid)
+			return true;
+		return false;
+	}
+	
+	return service;
 })
 
 .factory('masterServices',function($firebase){
