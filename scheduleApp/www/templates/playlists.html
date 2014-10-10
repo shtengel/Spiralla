@@ -3,7 +3,12 @@
   <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
-  <ion-content scroll="false" class="has-header">
-    <div ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar"></div>
+  <ion-content scroll="false" class="has-header">	
+	<div class="button-bar">
+	  <a ng-click="switchRoom(0)" class="button">First</a>
+	  <a ng-click="switchRoom(1)"class="button">Second</a>
+	  <a ng-click="switchRoom(2)" class="button">Third</a>
+	</div>
+    <div id="calendar" ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar"></div>
   </ion-content>
 </ion-view>

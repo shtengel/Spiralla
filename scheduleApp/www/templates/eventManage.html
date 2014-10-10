@@ -5,6 +5,8 @@
   <ion-content class="has-header">
   <div class="content">
 	<img ng-src="{{user.thirdPartyUserData.picture.data.url}}"/>
+	
+	<!--
     <div ng-repeat="event in events" type="success" class="alert ng-isolate-scope alert-success alert-dismissable" ng-class="{'alert-success' : true, 'alert-dismissable' : closeable}">
 			{{event.title}}
 			<br/>
@@ -16,7 +18,14 @@
 			<br/>
 			Ends in : {{event.end}}
 			
-	</div>
+	</div>!-->
+	<div class="list card">
+		
+		<a ng-repeat="event in events" class="item item-icon-right">
+			<i ng-click="removeEvent(event)" class="icon ion-trash-b"></i>
+			Starts in : {{event.start}}
+			Ends in : {{event.end}}
+		</a>
 	</div>
   </ion-content>
 </ion-view>

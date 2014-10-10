@@ -80,7 +80,7 @@ angular.module('starter.controllers', [])
 	
 })
 .controller('PlaylistsCtrl', function($scope,$firebase,$rootScope,$ionicModal,roomServices) {
-	$scope.events = roomServices.getRoomEventArray(0);
+	$rootScope.roomNumber = 0; 
 
 	//Calendar Config
 	$scope.uiConfig = {
@@ -103,12 +103,20 @@ angular.module('starter.controllers', [])
 	
 	//Add Event to calendar function
 	$scope.addEvent = function(date) {
-		
-
-
+		roomServices.addEventToRoom($rootScope.roomNumber,date);
 	}
 	
-	$scope.eventSources = [$scope.events]
+	//Switch to another Room (display that room's event)
+	$scope.switchRoom = function(newRoomNumber) {
+		if(newRoomNumber != $rootScope.roomNumber)
+		{
+			angular.element('#calendar').fullCalendar('removeEventSource',roomServices.getRoomEventArray($rootScope.roomNumber));
+			$rootScope.roomNumber = newRoomNumber;
+			angular.element('#calendar').fullCalendar('addEventSource',roomServices.getRoomEventArray(newRoomNumber));
+		}
+	}
+	
+	$scope.eventSources = [roomServices.getRoomEventArray($rootScope.roomNumber)]
 	
 	$ionicModal.fromTemplateUrl('templates/eventDetails.html',{
 		scope : $scope,
@@ -124,12 +132,12 @@ angular.module('starter.controllers', [])
 	};
 })
 
-.controller('EventManagerCtrl', function($scope,roomServices) {
-		$scope.events = roomServices.getRoomEventArray(0);
-	
+.controller('EventManagerCtrl', function($scope,$rootScope,roomServices) {
+		$scope.events = roomServices.getMyRoomEventArray($rootScope.roomNumber);
+		
 		//Remove event from calendar function
 		$scope.removeEvent = function(event){
-				roomServices.removeEventFromRoom(0,event);
+				roomServices.removeEventFromRoom($rootScope.roomNumber,event);
 		}	
 })
 
@@ -181,6 +189,10 @@ angular.module('starter.controllers', [])
 	}
 	
 	service.getRoomEventArray = function(index){
+		return rooms[index];
+	}
+	
+	service.getMyRoomEventArray = function(index){
 		return rooms[index];
 	}
 	
