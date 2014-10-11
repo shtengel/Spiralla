@@ -19,7 +19,8 @@ angular.module('starter.controllers', [])
 	$scope.login = function() {
 		//$scope.modal.show();
 		auth.login('facebook',{
-			rememberMe : false			
+			rememberMe : false,
+			preferRedirect : true
 		});
 	};
 

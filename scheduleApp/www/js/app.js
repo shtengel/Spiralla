@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.bootstrap','firebase'])
+angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.bootstrap','firebase','ui.router'])
 
 .run(function($ionicPlatform,$rootScope, $location,$ionicViewService) {
   $ionicPlatform.ready(function() {
@@ -28,13 +28,13 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
 	};
 
   // enumerate routes that don't need authentication
-  var routesThatDontRequireAuth = ['/login','/home'];
+  var routesThatDontRequireAuth = ['/login','/','/app/'];
   
   //Return True if the route to go to (routeTo) requires user auth or not
   var isRouteRequireAuth = function(routeTo){
 	for (i =0;i<routesThatDontRequireAuth.length;i++)
 	{
-		if(routeTo == routesThatDontRequireAuth[i])
+		if(routeTo.url == routesThatDontRequireAuth[i])
 			return false
 	}
 	return true
@@ -56,7 +56,15 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
 
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
-
+	.state('app.home', {
+      url: "/",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/homePage.html"
+        }
+      }
+    })
+	
     .state('app', {
       url: "/app",
       abstract: true,
@@ -83,14 +91,7 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
       }
     })
 	
-	.state('app.home', {
-      url: "/home",
-      views: {
-        'menuContent' :{
-          templateUrl: "templates/homePage.html"
-        }
-      }
-    })
+	
 
     .state('app.addeventdetailed', {
       url: "/addeventdetailed",
@@ -120,6 +121,6 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
       }
     });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/home');
+  $urlRouterProvider.otherwise('/app/');
 });
 
