@@ -1,10 +1,10 @@
-<ion-view title="Calender">
+<ion-view title="My Booked Events">
   <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
   <ion-content class="has-header">
   <div class="content">
-	<img ng-src="{{user.thirdPartyUserData.picture.data.url}}"/>
+	
 	
 	<!--
     <div ng-repeat="event in events" type="success" class="alert ng-isolate-scope alert-success alert-dismissable" ng-class="{'alert-success' : true, 'alert-dismissable' : closeable}">
@@ -23,8 +23,9 @@
 		
 		<a ng-repeat="event in events" class="item item-icon-right">
 			<i ng-click="removeEvent(event)" class="icon ion-trash-b"></i>
-			Starts in : {{event.start}}
-			Ends in : {{event.end}}
+			Starts in : {{event.start | date :'d/M/yy H:mm'}}
+			</br>
+			Ends in : {{event.end | date: 'd/M/yy H:mm'}}
 		</a>
 	</div>
   </ion-content>

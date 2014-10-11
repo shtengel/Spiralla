@@ -1,55 +1,52 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout,$rootScope) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout,$rootScope,$firebase, $firebaseSimpleLogin) {
+	$rootScope.roomNumber = 0; 
+	$rootScope.favicon = '<img class="img img-circle" src="img/favicons.png"/>';
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	
 	var auth = new FirebaseSimpleLogin(ref,function(error,user){
 		if(user){
-			$rootScope.user = user
+			$scope.$apply(function(){
+				$rootScope.user = user;
+				$scope.user = user;
+			})
 			getUserColor(user);
 		}
 	});
-  // Form data for the login modal
-  $scope.loginData = {};
 
-  // Create the login modal that we will use later
-  $ionicModal.fromTemplateUrl('templates/login.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.modal = modal;
-  });
+	// Open the login modal
+	$scope.login = function() {
+		//$scope.modal.show();
+		auth.login('facebook',{
+			rememberMe : false			
+		});
+	};
 
-  // Triggered in the login modal to close it
-  $scope.closeLogin = function() {
-    $scope.modal.hide();
-  };
-
-  // Open the login modal
-  $scope.login = function() {
-    //$scope.modal.show();
-	auth.login('facebook',{
-		rememberMe : false		
+	// Logs a user out
+	$scope.logout = function() {
+		auth.logout();
+	};
+	
+	var authRef = new Firebase("https://scorching-fire-7327.firebaseio.com/.info/authenticated");
+	authRef.on("value", function(snap) {
+	  if (snap.val() === true) {
+		console.log("authenticated");
+	  } else {
+		$rootScope.user = null;
+		$scope.user = null;
+		console.log("not authenticated");
+	  }
 	});
-  };
 
-  // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
-  };
-  
-  //Check to see if the user has already got a color
-  isUserColorExists = function(user,callback){
+	//Check to see if the user has already got a color
+	isUserColorExists = function(user,callback){
 			new Firebase('https://scorching-fire-7327.firebaseio.com/usersColor/'+user.uid).once('value', function(snap) {
 			callback(snap.val())
 		});
 	}
-  
-  var getUserColor = function(user){
+
+	var getUserColor = function(user){
 	isUserColorExists(user,function(info){
 		if(info == null)
 		{
@@ -80,7 +77,7 @@ angular.module('starter.controllers', [])
 	
 })
 .controller('PlaylistsCtrl', function($scope,$firebase,$rootScope,$ionicModal,roomServices) {
-	$rootScope.roomNumber = 0; 
+	
 
 	//Calendar Config
 	$scope.uiConfig = {

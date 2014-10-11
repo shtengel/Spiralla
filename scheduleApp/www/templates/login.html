@@ -12,7 +12,11 @@
     <div class="card">
       <div class="item item-text-wrap" ng-hide="user">User not logged in</div>
       <div class="item item-text-wrap" ng-show="user" ng-bind="user.uid"></div>
+	  <img class="item item-text-wrap" ng-show="user" ng-src="{{user.thirdPartyUserData.picture.data.url}}"/>
     </div>
+	
+	
   </ion-content>
 </ion-view>
+
 
