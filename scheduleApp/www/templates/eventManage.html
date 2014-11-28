@@ -19,8 +19,11 @@
 			Ends in : {{event.end}}
 			
 	</div>!-->
+	<div class="card">
+		Viewing Room number : {{roomNumber}}
+	</div>
+	</br>
 	<div class="list card">
-		
 		<a ng-repeat="event in events" class="item item-icon-right">
 			<i ng-click="removeEvent(event)" class="icon ion-trash-b"></i>
 			Starts in : {{event.start | date :'d/M/yy H:mm'}}

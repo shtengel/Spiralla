@@ -74,16 +74,46 @@ angular.module('starter.controllers', [])
 		return color;
 	}
 })
-.controller('loginCtrl',function($scope,$rootScope,$firebase,$firebaseSimpleLogin){
+.controller('PreferencesCtrl',function($scope,$location,$rootScope,roomServices){
+	$scope.roomsCount = []
+	if($rootScope.user == null)
+	{
+		// redirect back to login
+		$location.path('/app/login');
+	}
 	
+	for(i=0;i<roomServices.ROOM_COUNT;i++)
+	{
+		if($rootScope.roomNumber !=i)
+		{
+			$scope.roomsCount.push(i);
+		}
+	}
+	$scope.number = $rootScope.roomNumber;
+	
+	$scope.roomSwitch = function(number)
+	{
+		$rootScope.roomNumber = number;
+	}
+	
+	 $scope.$watch('number', function() {
+       $rootScope.roomNumber = $scope.number;
+   });
 })
-.controller('PlaylistsCtrl', function($scope,$firebase,$rootScope,$ionicModal,roomServices) {
+.controller('PlaylistsCtrl', function($scope,$location,$firebase,$rootScope,$ionicModal,roomServices) {
+	if($rootScope.user == null)
+	{
+		// redirect back to login
+		$location.path('/app/login');
+	}
 	
-
+	angular.element('#room0').addClass('btn-info');
+	
 	//Calendar Config
 	$scope.uiConfig = {
 		calendar:{
 			editable : true,
+			businessHours: true,
 			header:{
 				left :'month agendaWeek',
 				center : 'title',
@@ -94,27 +124,47 @@ angular.module('starter.controllers', [])
 							},
 				eventClick: function(date,jsEvent,view){
 					//syncEventsArray.$remove(date);
-					$scope.openModal();
+					//$scope.openModal();
 				}
 			}
 		};
 	
 	//Add Event to calendar function
 	$scope.addEvent = function(date) {
-		roomServices.addEventToRoom($rootScope.roomNumber,date);
+		event = roomServices.addEventToRoom($rootScope.roomNumber,date);
+		//angular.element('#calendar').fullCalendar('render');
+		angular.element('#calendar').fullCalendar( 'changeView', 'month' )
 	}
 	
 	//Switch to another Room (display that room's event)
 	$scope.switchRoom = function(newRoomNumber) {
 		if(newRoomNumber != $rootScope.roomNumber)
 		{
-			angular.element('#calendar').fullCalendar('removeEventSource',roomServices.getRoomEventArray($rootScope.roomNumber));
+			//angular.element('#calendar').fullCalendar('removeEventSource',roomServices.getRoomEventArray($rootScope.roomNumber));
 			$rootScope.roomNumber = newRoomNumber;
-			angular.element('#calendar').fullCalendar('addEventSource',roomServices.getRoomEventArray(newRoomNumber));
+			//angular.element('#calendar').fullCalendar('addEventSource',roomServices.getRoomEventArray(newRoomNumber));
+			angular.element('#calendar'+newRoomNumber).fullCalendar('render');
+			
+			setColorButtons(newRoomNumber);
 		}
 	}
 	
-	$scope.eventSources = [roomServices.getRoomEventArray($rootScope.roomNumber)]
+	setColorButtons = function(newRoomNumber){
+			
+		angular.element('#room'+newRoomNumber).addClass('btn-info');
+		
+		for(i=0;i<4;i++){
+			if(i != newRoomNumber){
+			
+				angular.element('#room'+i).removeClass('btn-info');
+			}
+		}
+	}
+	
+	//$scope.eventSources = [roomServices.getRoomEventArray($rootScope.roomNumber)]
+	$scope.eventSources1 = [roomServices.getRoomEventArray(0)]
+	$scope.eventSources2 = [roomServices.getRoomEventArray(1)]
+	$scope.eventSources3 = [roomServices.getRoomEventArray(2)]
 	
 	$ionicModal.fromTemplateUrl('templates/eventDetails.html',{
 		scope : $scope,
@@ -131,12 +181,19 @@ angular.module('starter.controllers', [])
 })
 
 .controller('EventManagerCtrl', function($scope,$rootScope,roomServices) {
-		$scope.events = roomServices.getMyRoomEventArray($rootScope.roomNumber);
+		var init = function(){
+			roomServices.getMyRoomEventArray($rootScope.roomNumber,function(events){
+				$scope.events = events;
+			});
+		}
 		
 		//Remove event from calendar function
 		$scope.removeEvent = function(event){
 				roomServices.removeEventFromRoom($rootScope.roomNumber,event);
+				init();
 		}	
+		
+		init();
 })
 
 .controller('AddDetailedEventCtrl',function($scope,$firebase,$rootScope,dateServices){
@@ -175,9 +232,10 @@ angular.module('starter.controllers', [])
 	}
 })
 
-.factory('roomServices',function(dateServices,$rootScope,$firebase){
+.factory('roomServices',function(dateServices,masterServices,$rootScope,$firebase){
 	var service = {};
 	service.ROOM_COUNT = 3;
+	console.log('sdf')
 	var rooms = {};
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
 	for(i=0;i<service.ROOM_COUNT;i++)
@@ -186,12 +244,30 @@ angular.module('starter.controllers', [])
 		rooms[i] = sync.$asArray();
 	}
 	
+	
 	service.getRoomEventArray = function(index){
 		return rooms[index];
 	}
 	
-	service.getMyRoomEventArray = function(index){
-		return rooms[index];
+	service.getMyRoomEventArray = function(index,callback){
+		masterServices.isMasterUser($rootScope.user,function(isMaster){
+			if(isMaster == true)
+			{
+				callback(rooms[index]);
+			}
+			else
+			{
+				items = []
+				for(i=0;i<rooms[index].length;i++)
+				{
+					if(isMyEvent(rooms[index][i]))
+					{
+						items.push(rooms[index][i]);
+					}
+				}
+				callback(items);
+			}
+		});
 	}
 	
 	service.addEventToRoom = function(index,date){
@@ -222,20 +298,27 @@ angular.module('starter.controllers', [])
 		if(dateServices.isTimeAvailable(rooms[index],event)){
 			rooms[index].$add(event);
 		}
-
+		
+		return event;
 	}
 	
 	//Remove event from calendar function
 	service.removeEventFromRoom = function(index,event){
 			//A Check that the event were about to delete is ours
 			if(isMyEvent(event))
+			{
+				console.log('my event')
 				rooms[index].$remove(event);
+			}
 			else
-				//if not , master user can do anything
-				masterServices.isMasterUser($rootScope.user,function(userobj){
-					if(userobj != null)
-						rooms[index].$remove(event);
-				});
+				{
+					console.log('not my event')
+					//if not , master user can do anything
+					masterServices.isMasterUser($rootScope.user,function(userobj){
+						if(userobj != null)
+							rooms[index].$remove(event);
+					});
+				}
 		}
 		
 	//A Function that returns true is the event given is mine ( according to the fbId )
@@ -248,7 +331,7 @@ angular.module('starter.controllers', [])
 	return service;
 })
 
-.factory('masterServices',function($firebase){
+.factory('masterServices',function($firebase,$location){
 	var master = {};
 
 	//Loading Firebase DB
@@ -260,6 +343,11 @@ angular.module('starter.controllers', [])
 	master.masterUsers = syncMasterUsersArray;
 	
 	master.isMasterUser = function(user,callback){
+			if(user == null)
+			{
+				// redirect back to login
+				$location.path('/app/login');
+			}
 			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
 			callback(snap.val())
 		});

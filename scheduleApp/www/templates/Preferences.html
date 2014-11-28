@@ -1,0 +1,22 @@
+<ion-view title="Preferences">
+	<i class="ion-ionic"></i>
+  <ion-nav-buttons side="left">
+    <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+  <ion-content>
+    <div class="list">
+	  <label class="item item-input item-select">
+		<div class="input-label">
+		  Room
+		</div>
+		<select ng-model="number">
+		  <option selected>{{roomNumber}}</option>
+		  <option ng-repeat="n in roomsCount">{{n}}</option>
+		</select>
+	  </label>
+	</div>
+	<div class="card">Selected Room Number : {{roomNumber}}</div>
+  </ion-content>
+</ion-view>
+
+

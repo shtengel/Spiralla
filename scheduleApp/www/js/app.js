@@ -28,7 +28,7 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
 	};
 
   // enumerate routes that don't need authentication
-  var routesThatDontRequireAuth = ['/login','/','/app/'];
+  var routesThatDontRequireAuth = ['/login','/'];
   
   //Return True if the route to go to (routeTo) requires user auth or not
   var isRouteRequireAuth = function(routeTo){
@@ -82,18 +82,17 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
       }
 	})
 	
-    .state('app.search', {
-      url: "/search",
-      views: {
+    .state('app.preferences',{
+		url : "/preferences",
+		views: {
         'menuContent' :{
-          templateUrl: "templates/search.html"
+          templateUrl: "templates/preferences.html",
+          controller: 'PreferencesCtrl'
         }
       }
-    })
+	})
 	
-	
-
-    .state('app.addeventdetailed', {
+	.state('app.addeventdetailed', {
       url: "/addeventdetailed",
       views: {
         'menuContent' :{
