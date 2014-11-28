@@ -6,7 +6,12 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.bootstrap','firebase','ui.router'])
 
-.run(function($ionicPlatform,$rootScope, $location,$ionicViewService) {
+.run(function($rootScope, $firebaseSimpleLogin, $state, $window) {
+
+  
+})
+
+.run(function($ionicPlatform,$rootScope, $location,$ionicViewService, $firebaseSimpleLogin, $state, $window) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -18,6 +23,29 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
       StatusBar.styleDefault();
     }
   });
+  
+	var dataRef = new Firebase("https://scorching-fire-7327.firebaseio.com/");
+	var loginObj = $firebaseSimpleLogin(dataRef);
+
+	loginObj.$getCurrentUser().then(function(user) {
+	if(!user){ 
+	  // Might already be handled by logout event below
+	  $state.go('login');
+	}
+	}, function(err) {
+		//do Nothing
+	});
+
+	$rootScope.$on('$firebaseSimpleLogin:login', function(e, user) {
+		$rootScope.user = user;
+		//$state.go('app.playlists');
+	});
+
+	$rootScope.$on('$firebaseSimpleLogin:logout', function(e, user) {
+		$rootScope.user = null;
+		console.log($state);
+		$state.go('app.login');
+	});
   
     //A Function that returns True or False whether the user is authenticated or not
 	var isUserLoggedIn = function()

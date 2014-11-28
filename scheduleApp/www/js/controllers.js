@@ -4,6 +4,7 @@ angular.module('starter.controllers', [])
 	$rootScope.roomNumber = 0; 
 	$rootScope.favicon = '<img class="img img-circle" src="img/favicons.png"/>';
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	$scope.loginObj = $firebaseSimpleLogin(ref);
 	
 	var auth = new FirebaseSimpleLogin(ref,function(error,user){
 		if(user){
@@ -17,12 +18,21 @@ angular.module('starter.controllers', [])
 
 	// Open the login modal
 	$scope.login = function() {
+		$scope.loginObj.$login('facebook').then(function(user) {
+			$scope.$apply(function(){
+				$rootScope.user = user;
+				$scope.user = user;
+			});
+			getUserColor(user);
+		}, function(error) {
+		  console.error('Unable to login', error);
+		});
+	  };
 		//$scope.modal.show();
-		auth.login('facebook',{
+		/*auth.login('facebook',{
 			rememberMe : false,
 			preferRedirect : true
-		});
-	};
+		});*/
 
 	// Logs a user out
 	$scope.logout = function() {
@@ -100,11 +110,11 @@ angular.module('starter.controllers', [])
        $rootScope.roomNumber = $scope.number;
    });
 })
-.controller('PlaylistsCtrl', function($scope,$location,$firebase,$rootScope,$ionicModal,roomServices) {
+.controller('PlaylistsCtrl', function($scope,$state,$firebase,$rootScope,$ionicModal,roomServices) {
 	if($rootScope.user == null)
 	{
 		// redirect back to login
-		$location.path('/app/login');
+		$state.path('app.login');
 	}
 	
 	angular.element('#room0').addClass('btn-info');
@@ -331,7 +341,7 @@ angular.module('starter.controllers', [])
 	return service;
 })
 
-.factory('masterServices',function($firebase,$location){
+.factory('masterServices',function($firebase,$state){
 	var master = {};
 
 	//Loading Firebase DB
@@ -346,7 +356,7 @@ angular.module('starter.controllers', [])
 			if(user == null)
 			{
 				// redirect back to login
-				$location.path('/app/login');
+				$state.path('app.login');
 			}
 			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
 			callback(snap.val())
