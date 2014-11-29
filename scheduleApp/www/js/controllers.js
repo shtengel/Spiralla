@@ -17,12 +17,11 @@ angular.module('starter.controllers', [])
 	});
 
 	// Open the login modal
-	$scope.login = function() {
-		$scope.loginObj.$login('facebook').then(function(user) {
-			$scope.$apply(function(){
-				$rootScope.user = user;
-				$scope.user = user;
-			});
+	$scope.login = function(provider) {
+		$scope.loginObj.$login(provider).then(function(user) {			
+			$rootScope.user = user;
+			$scope.user = user;
+			console.log(user)
 			getUserColor(user);
 		}, function(error) {
 		  console.error('Unable to login', error);
@@ -310,8 +309,13 @@ angular.module('starter.controllers', [])
 		
 		var endDate = new Date(date.toString())
 		endDate.addHours(1)
+		var profile_pic_url = $rootScope.user.thirdPartyUserData.picture;
+		if($rootScope.user.thirdPartyUserData.picture.hasOwnProperty('data')){
+			profile_pic_url = $rootScope.user.thirdPartyUserData.picture.data.url;
+		}
+		
 		var user = { 'displayName' : $rootScope.user.displayName,
-					 'profileUrl' : $rootScope.user.thirdPartyUserData.picture.data.url,
+					 'profileUrl' :profile_pic_url,
 					 'uid' : $rootScope.user.uid };
 		event = {
 			title: 'Booked',
