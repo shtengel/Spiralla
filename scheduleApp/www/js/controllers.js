@@ -114,10 +114,10 @@ angular.module('starter.controllers', [])
 	if($rootScope.user == null)
 	{
 		// redirect back to login
-		$state.path('app.login');
+		$state.go('app.login');
 	}
 	
-	angular.element('#room0').addClass('btn-info');
+	angular.element('#room'+$rootScope.roomNumber).addClass('btn-info');
 	
 	//Calendar Config
 	$scope.uiConfig = {
@@ -190,19 +190,20 @@ angular.module('starter.controllers', [])
 	};
 })
 
-.controller('EventManagerCtrl', function($scope,$rootScope,roomServices) {
+.controller('EventManagerCtrl', function($scope,$rootScope,$timeout,roomServices) {
+		$scope.displayRoomNumber = $rootScope.roomNumber + 1;
 		var init = function(){
-			roomServices.getMyRoomEventArray($rootScope.roomNumber,function(events){
+			roomServices.getMyRoomEventArray($rootScope.roomNumber,function(events){				
 				$scope.events = events;
 			});
 		}
 		
 		//Remove event from calendar function
-		$scope.removeEvent = function(event){
+		$scope.removeEvent = function(event,index){		
 				roomServices.removeEventFromRoom($rootScope.roomNumber,event);
-				init();
-		}	
-		
+				$scope.events.splice(index, 1);
+				//init();
+		};
 		init();
 })
 
@@ -248,6 +249,8 @@ angular.module('starter.controllers', [])
 	console.log('sdf')
 	var rooms = {};
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	var deletedEventsLog = $firebase(ref.child('deleted_events_log'));
+	
 	for(i=0;i<service.ROOM_COUNT;i++)
 	{
 		var sync = $firebase(ref.child('events'+i));
@@ -319,6 +322,14 @@ angular.module('starter.controllers', [])
 			{
 				console.log('my event')
 				rooms[index].$remove(event);
+				event['deleting_user'] = $rootScope.user.displayName;
+				deletedEventsLog.$push({
+										start: event.start,
+										end :  event.end,
+										deletingUser:  $rootScope.user.displayName,
+										unixStartTime:event.unixStartTime,
+										unixEndTime:event.unixEndTime
+				});
 			}
 			else
 				{
@@ -327,6 +338,14 @@ angular.module('starter.controllers', [])
 					masterServices.isMasterUser($rootScope.user,function(userobj){
 						if(userobj != null)
 							rooms[index].$remove(event);
+							event['deleting_user'] = $rootScope.user.displayName;
+							deletedEventsLog.$push({
+										start: event.start,
+										end :  event.end,
+										deletingUser:  $rootScope.user.displayName,
+										unixStartTime:event.unixStartTime,
+										unixEndTime:event.unixEndTime
+							});
 					});
 				}
 		}
@@ -356,7 +375,7 @@ angular.module('starter.controllers', [])
 			if(user == null)
 			{
 				// redirect back to login
-				$state.path('app.login');
+				$state.go('app.login');
 			}
 			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
 			callback(snap.val())

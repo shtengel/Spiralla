@@ -110,8 +110,12 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
 
 
                 // Insert the root as specified in the settings.
-                if ( SETTINGS.container ) angular.element( SETTINGS.container ).append( P.$root )
-                else $ELEMENT.after( P.$root )
+                if ( SETTINGS.container ) {
+                  angular.element( SETTINGS.container ).append( P.$root )
+                } 
+                else {
+                  $ELEMENT.after( P.$root )
+                }
 
 
                 // Bind the default component and settings events.
@@ -629,44 +633,49 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
 				}
 			}
 		});
-		
+
         function attachLiveEvents() {
-			// If there’s a click on an actionable element, carry out the actions.
-			angular.element(P.$root[0].querySelectorAll('[data-pick], [data-nav], [data-clear]')).on('click', function() {
-				var $target = angular.element( this ),
-					targetDisabled = $target.hasClass( CLASSES.navDisabled ) || $target.hasClass( CLASSES.disabled ),
+            // If there’s a click on an actionable element, carry out the actions.
+            angular.element(P.$root[0].querySelectorAll('[data-pick], [data-nav], [data-clear], [data-close]')).on('click', function() {
+                var $target = angular.element( this ),
+                    targetDisabled = $target.hasClass( CLASSES.navDisabled ) || $target.hasClass( CLASSES.disabled ),
 
-					// * For IE, non-focusable elements can be active elements as well
-					//   (http://stackoverflow.com/a/2684561).
-					activeElement = document.activeElement
-					activeElement = activeElement && ( activeElement.type || activeElement.href ) && activeElement
+                // * For IE, non-focusable elements can be active elements as well
+                //   (http://stackoverflow.com/a/2684561).
+                    activeElement = document.activeElement
+                activeElement = activeElement && ( activeElement.type || activeElement.href ) && activeElement
 
-				// If it’s disabled or nothing inside is actively focused, re-focus the element.
-				if ( targetDisabled || activeElement && !P.$root[0].contains(activeElement) ) {
-					ELEMENT.focus()
-				}
+                // If it’s disabled or nothing inside is actively focused, re-focus the element.
+                if ( targetDisabled || activeElement && !P.$root[0].contains(activeElement) ) {
+                    ELEMENT.focus()
+                }
 
-				// If something is superficially changed, update the `highlight` based on the `nav`.
-				if ( $target.attr('data-nav') && !targetDisabled ) {
-					P.set( 'highlight', P.component.item.highlight, { nav: parseInt($target.attr('data-nav')) } )
-					attachLiveEvents();
-				}
+                // If something is superficially changed, update the `highlight` based on the `nav`.
+                if ( $target.attr('data-nav') && !targetDisabled ) {
+                    P.set( 'highlight', P.component.item.highlight, { nav: parseInt($target.attr('data-nav')) } )
+                    attachLiveEvents();
+                }
 
-				// If something is picked, set `select` then close with focus.
-				else if ( PickerConstructor._.isInteger( parseInt($target.attr('data-pick')) ) && !targetDisabled ) {
+                // If something is picked, set `select` then close with focus.
+                else if ( PickerConstructor._.isInteger( parseInt($target.attr('data-pick')) ) && !targetDisabled ) {
                     P.set( 'select', parseInt($target.attr('data-pick')) ).close( true )
-					attachLiveEvents();
-				}
+                    attachLiveEvents();
+                }
 
-				// If a “clear” button is pressed, empty the values and close with focus.
-				else if ( $target.attr('data-clear') ) {
-					P.clear().close( true )
-					attachLiveEvents();
-				}
-				
-				
-			});
-		}
+                // If a “clear” button is pressed, empty the values and close with focus.
+                else if ( $target.attr('data-clear') ) {
+                    P.clear().close( true )
+                    attachLiveEvents();
+                }
+
+                // If a "close" button is pressed, close with focus.
+                else if ( $target.attr('data-close') ) {
+                    P.close( true );
+                    attachLiveEvents();
+                }
+
+            });
+        }
 		
 		attachLiveEvents();
 		

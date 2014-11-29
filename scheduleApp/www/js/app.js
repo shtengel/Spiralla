@@ -13,6 +13,7 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
 
 .run(function($ionicPlatform,$rootScope, $location,$ionicViewService, $firebaseSimpleLogin, $state, $window) {
   $ionicPlatform.ready(function() {
+
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if(window.cordova && window.cordova.plugins.Keyboard) {
@@ -76,7 +77,7 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
 	   disableBack: true
 	});
       // redirect back to login
-      $location.path('/app/login');
+      $state.go('app.login');
     }
   });
   
