@@ -4,12 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.bootstrap','firebase','ui.router'])
-
-.run(function($rootScope, $firebaseSimpleLogin, $state, $window) {
-
-  
-})
+angular.module('starter', ['ionic','starter.controllers','ui.calendar','ui.bootstrap','firebase','ui.router','pickadate'])
 
 .run(function($ionicPlatform,$rootScope, $location,$ionicViewService, $firebaseSimpleLogin, $state, $window) {
   $ionicPlatform.ready(function() {
@@ -125,7 +120,8 @@ angular.module('starter', ['ionic', 'starter.controllers','ui.calendar','ui.boot
       url: "/addeventdetailed",
       views: {
         'menuContent' :{
-          templateUrl: "templates/addEventDetailed.html"
+          templateUrl: "templates/addEventDetailed.html",
+		  controller: 'AddDetailedEventCtrl'
         }
       }
     })

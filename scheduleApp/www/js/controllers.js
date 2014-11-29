@@ -207,7 +207,7 @@ angular.module('starter.controllers', [])
 		init();
 })
 
-.controller('AddDetailedEventCtrl',function($scope,$firebase,$rootScope,dateServices){
+.controller('AddDetailedEventCtrl',function($scope,$firebase,$rootScope,dateServices,$ionicModal){
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/events");
 		
 	var sync = $firebase(ref);
@@ -241,6 +241,25 @@ angular.module('starter.controllers', [])
 			syncEventsArray.$add(event);
 		}
 	}
+	
+	$ionicModal.fromTemplateUrl('templates/datemodal.html', 
+        function(modal) {
+            $scope.datemodal = modal;
+        },
+        {
+        // Use our scope for the scope of the modal to keep it simple
+        scope: $scope, 
+        // The animation we want to use for the modal entrance
+        animation: 'slide-in-up'
+        }
+    );
+    $scope.opendateModal = function() {
+      $scope.datemodal.show();
+    };
+    $scope.closedateModal = function(modal) {
+      $scope.datemodal.hide();
+      $scope.datepicker = modal;
+    };
 })
 
 .factory('roomServices',function(dateServices,masterServices,$rootScope,$firebase){
