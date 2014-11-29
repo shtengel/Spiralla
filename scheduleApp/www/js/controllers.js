@@ -2,7 +2,8 @@ angular.module('starter.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout,$rootScope,$firebase, $firebaseSimpleLogin) {
 	$rootScope.roomNumber = 0; 
-	$rootScope.favicon = '<img class="img img-circle" src="img/favicons.png"/>';
+	$rootScope.favicon = '<img class="img img-circle" src="img/Spiralla_icon_shakof.png"/>';
+	$rootScope.logo = 'img/Spiralla_logo_shakof.png'
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
 	$scope.loginObj = $firebaseSimpleLogin(ref);
 	

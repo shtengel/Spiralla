@@ -1,0 +1,3 @@
+<platform name="android">
+ <icon src="icons/android/drawable-xhdpi/ic_launcher.png" width="96" height="96" />
+</platform>
