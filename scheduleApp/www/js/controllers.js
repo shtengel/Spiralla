@@ -85,6 +85,7 @@ angular.module('starter.controllers', [])
 	}
 })
 .controller('PreferencesCtrl',function($scope,$location,$rootScope,roomServices){
+	
 	$scope.roomsCount = []
 	if($rootScope.user == null)
 	{
@@ -110,12 +111,13 @@ angular.module('starter.controllers', [])
        $rootScope.roomNumber = $scope.number;
    });
 })
-.controller('PlaylistsCtrl', function($scope,$state,$firebase,$rootScope,$ionicModal,roomServices) {
+.controller('PlaylistsCtrl', function($scope,$state,$firebase,$rootScope,$ionicModal,$ionicPopup,roomServices) {
 	if($rootScope.user == null)
 	{
 		// redirect back to login
 		$state.go('app.login');
 	}
+	$scope.data = {}
 	
 	angular.element('#room'+$rootScope.roomNumber).addClass('btn-info');
 	
@@ -141,9 +143,40 @@ angular.module('starter.controllers', [])
 	
 	//Add Event to calendar function
 	$scope.addEvent = function(date) {
-		event = roomServices.addEventToRoom($rootScope.roomNumber,date);
-		//angular.element('#calendar').fullCalendar('render');
-		angular.element('#calendar').fullCalendar( 'changeView', 'month' )
+		// Popup to show when entering new Appoitment to enter description
+		var myPopup = $ionicPopup.show({
+			template: '<input type="text" ng-model="data.description">',
+			title: 'Enter Description',
+			subTitle: 'תיאור עם מי יש לי פגישה',
+			scope: $scope,
+			buttons: [
+			  { text: 'Cancel' },
+			  {
+				text: '<b>Save</b>',
+				type: 'button-royal',
+				onTap: function(e) {
+				  if (!$scope.data.description) {
+					//don't allow the user to close unless he enters wifi password
+					e.preventDefault();
+				  } else {
+					return $scope.data.description;
+				  }
+				}
+			  },
+			]
+		});
+		myPopup.then(function(res) {
+			if($scope.data.description != undefined)
+			{
+				//After Popup , push the newly event
+				console.log('Tapped!', res);
+
+				event = roomServices.addEventToRoom($rootScope.roomNumber,date,$scope.data.description);
+				//angular.element('#calendar').fullCalendar('render');
+				angular.element('#calendar').fullCalendar( 'changeView', 'month' )
+				$scope.data.description = null;
+			}
+		});
 	}
 	
 	//Switch to another Room (display that room's event)
@@ -188,6 +221,8 @@ angular.module('starter.controllers', [])
 	$scope.closeModal = function() {
 		$scope.modal.hide();
 	};
+	
+	
 })
 
 .controller('EventManagerCtrl', function($scope,$rootScope,$timeout,roomServices) {
@@ -302,7 +337,7 @@ angular.module('starter.controllers', [])
 		});
 	}
 	
-	service.addEventToRoom = function(index,date){
+	service.addEventToRoom = function(index,date,eventDescription){
 	
 		//A Check that the given date is not too far ( date < today + 1 month )
 		if(dateServices.isDateExceedDatesLimits(date))
@@ -326,6 +361,7 @@ angular.module('starter.controllers', [])
 			title:  $rootScope.user.displayName,
 			borderColor : $rootScope.user.color,
 			allDay:false,
+			description : eventDescription,
 			unixStartTime:date.getTime(),
 			unixEndTime:endDate.getTime(),
 			user: user
@@ -350,6 +386,7 @@ angular.module('starter.controllers', [])
 				deletedEventsLog.$push({
 										start: event.start,
 										end :  event.end,
+										description : event.description,
 										deletingUser:  $rootScope.user.displayName,
 										unixStartTime:event.unixStartTime,
 										unixEndTime:event.unixEndTime
@@ -360,16 +397,18 @@ angular.module('starter.controllers', [])
 					console.log('not my event')
 					//if not , master user can do anything
 					masterServices.isMasterUser($rootScope.user,function(userobj){
-						if(userobj != null)
+						if(userobj != null){
 							rooms[index].$remove(event);
 							event['deleting_user'] = $rootScope.user.displayName;
 							deletedEventsLog.$push({
 										start: event.start,
 										end :  event.end,
 										deletingUser:  $rootScope.user.displayName,
+										description : event.description,
 										unixStartTime:event.unixStartTime,
 										unixEndTime:event.unixEndTime
 							});
+						}
 					});
 				}
 		}
