@@ -7,6 +7,11 @@ angular.module('starter.controllers', [])
 	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
 	$scope.loginObj = $firebaseSimpleLogin(ref);
 	
+	//Home Message Board
+	var sync = $firebase(ref.child('messageBoardMessages'));
+	$scope.messageBoard = sync.$asArray();
+	console.log($scope.messageBoard)
+	
 	var auth = new FirebaseSimpleLogin(ref,function(error,user){
 		if(user){
 			$scope.$apply(function(){
@@ -119,7 +124,7 @@ angular.module('starter.controllers', [])
 	}
 	$scope.data = {}
 	
-	angular.element('#room'+$rootScope.roomNumber).addClass('btn-info');
+	angular.element('#room'+$rootScope.roomNumber).addClass('button-dark');
 	
 	//Calendar Config
 	$scope.uiConfig = {
@@ -194,12 +199,12 @@ angular.module('starter.controllers', [])
 	
 	setColorButtons = function(newRoomNumber){
 			
-		angular.element('#room'+newRoomNumber).addClass('btn-info');
+		angular.element('#room'+newRoomNumber).addClass('button-dark');
 		
 		for(i=0;i<4;i++){
 			if(i != newRoomNumber){
 			
-				angular.element('#room'+i).removeClass('btn-info');
+				angular.element('#room'+i).removeClass('button-dark');
 			}
 		}
 	}
@@ -225,11 +230,19 @@ angular.module('starter.controllers', [])
 	
 })
 
-.controller('EventManagerCtrl', function($scope,$rootScope,$timeout,roomServices) {
+.controller('EventManagerCtrl', function($scope,$rootScope,$timeout,roomServices,masterServices) {
 		$scope.displayRoomNumber = $rootScope.roomNumber + 1;
+		$scope.isMaster = false
+		masterServices.isMasterUser($rootScope.user,function(value){
+			console.log('is master user ' + value)
+			$scope.isMaster = value;
+		});
+		
 		var init = function(){
-			roomServices.getMyRoomEventArray($rootScope.roomNumber,function(events){				
-				$scope.events = events;
+			roomServices.getMyRoomEventArray($rootScope.roomNumber,function(events){
+				$timeout(function(){
+					$scope.events = events;
+				});
 			});
 		}
 		
@@ -329,6 +342,7 @@ angular.module('starter.controllers', [])
 				{
 					if(isMyEvent(rooms[index][i]))
 					{
+						console.log('sdf')
 						items.push(rooms[index][i]);
 					}
 				}
@@ -427,13 +441,7 @@ angular.module('starter.controllers', [])
 	var master = {};
 
 	//Loading Firebase DB
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/masterUsers");
-	var sync = $firebase(ref);
-	
-	var syncMasterUsersArray = sync.$asArray();
-	
-	master.masterUsers = syncMasterUsersArray;
-	
+	//var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/masterUsers");
 	master.isMasterUser = function(user,callback){
 			if(user == null)
 			{
@@ -441,7 +449,13 @@ angular.module('starter.controllers', [])
 				$state.go('app.login');
 			}
 			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
-			callback(snap.val())
+				val = snap.val()
+				if(val == null || val == false){
+					callback(false)
+				}
+				else{
+					callback(true)
+				}
 		});
 	}
 	
