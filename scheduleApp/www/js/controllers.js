@@ -129,8 +129,8 @@ angular.module('starter.controllers', [])
 	//Calendar Config
 	$scope.uiConfig = {
 		calendar:{
-			editable : true,
-			businessHours: true,
+			editable : false,
+			businessHours: false,
 			header:{
 				left :'month agendaWeek',
 				center : 'title',
@@ -175,7 +175,9 @@ angular.module('starter.controllers', [])
 			{
 				//After Popup , push the newly event
 				console.log('Tapped!', res);
-
+				if(cordova){
+					cordova.plugins.Keyboard.close();
+				}
 				event = roomServices.addEventToRoom($rootScope.roomNumber,date,$scope.data.description);
 				//angular.element('#calendar').fullCalendar('render');
 				angular.element('#calendar').fullCalendar( 'changeView', 'month' )
