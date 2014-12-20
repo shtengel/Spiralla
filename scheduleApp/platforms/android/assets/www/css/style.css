@@ -1,0 +1,11 @@
+/* Empty. Add your own CSS if you like */
+
+
+.fc-agenda .fc-agenda-axis{
+    	width: 60px!important;
+    	font-size: 125%!important;
+    }
+    .fc-event-time{padding-top: 3px;padding-bottom: 3px}
+    .fc-agenda-slots td div, .fc-agenda-slots tr{
+    	height: 25px!important
+    }
