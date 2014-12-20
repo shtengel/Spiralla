@@ -178,7 +178,10 @@ angular.module('starter.controllers', [])
 				if(window.cordova != null){
 					cordova.plugins.Keyboard.close();
 				}
-				event = roomServices.addEventToRoom($rootScope.roomNumber,date,$scope.data.description);
+				var endDate = new Date(date.toString());
+				endDate.addHours(1);
+				
+				event = roomServices.addEventToRoom($rootScope.roomNumber,date,endDate,$scope.data.description);
 				//angular.element('#calendar').fullCalendar('render');
 				angular.element('#calendar').fullCalendar( 'changeView', 'month' )
 				$scope.data.description = null;
@@ -348,14 +351,13 @@ angular.module('starter.controllers', [])
 		}
 	}
 	
-	service.addEventToRoom = function(index,date,eventDescription){
+	service.addEventToRoom = function(index,date,endDate,eventDescription){
 	
 		//A Check that the given date is not too far ( date < today + 1 month )
 		if(dateServices.isDateExceedDatesLimits(date))
 			return;
 		
-		var endDate = new Date(date.toString())
-		endDate.addHours(1)
+		
 		var profile_pic_url = $rootScope.user.thirdPartyUserData.picture;
 		if($rootScope.user.thirdPartyUserData.picture.hasOwnProperty('data')){
 			profile_pic_url = $rootScope.user.thirdPartyUserData.picture.data.url;
@@ -381,6 +383,9 @@ angular.module('starter.controllers', [])
 		//A Check that there are no overlapping dates
 		if(dateServices.isTimeAvailable(rooms[index],event)){
 			rooms[index].$add(event);
+		}
+		else{
+			alert('Cannot book this time .. already been taken by someone else');
 		}
 		
 		return event;
