@@ -4,17 +4,9 @@
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
   <ion-content  class="has-header" class="showScroll">	<!--scroll="false"-->
-  
-	<div class="button-bar">
-	  <a id="room0" ng-click="switchRoom(0)" class="button">First</a>
-	  <a id="room1" ng-click="switchRoom(1)" class="button">Second</a>
-	  <a id="room2" ng-click="switchRoom(2)" class="button">Third</a>
-	</div>
 	<div class="row padding">
 	<div class="col col-100" >
     <div data-tap-disabled="true" ng-show="roomNumber==0" id="calendar0" ui-calendar="uiConfig.calendar" ng-model="eventSources1" calendar="myCalendar1"></div>
-	<div data-tap-disabled="true" ng-show="roomNumber==1" id="calendar1" ui-calendar="uiConfig.calendar" ng-model="eventSources2" calendar="myCalendar2"></div>
-	<div data-tap-disabled="true" ng-show="roomNumber==2" id="calendar2" ui-calendar="uiConfig.calendar" ng-model="eventSources3" calendar="myCalendar3"></div>
 	</div></div>
 	<!--<div id="calendar" ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar"></div>!-->
   </ion-content>

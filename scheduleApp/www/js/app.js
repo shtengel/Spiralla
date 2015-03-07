@@ -22,7 +22,7 @@ var app = angular.module('starter', ['ionic','starter.controllers','ui.calendar'
     }
   });
   
-	var dataRef = new Firebase("https://scorching-fire-7327.firebaseio.com/");
+	var dataRef = new Firebase("https://sassonsamia.firebaseio.com/");
 	var loginObj = $firebaseSimpleLogin(dataRef);
 
 	loginObj.$getCurrentUser().then(function(user) {
@@ -206,7 +206,7 @@ var app = angular.module('starter', ['ionic','starter.controllers','ui.calendar'
                 //Insert code here to store the user's ID on your notification server. 
                 //You'll probably have a web service (wrapped in an Angular service of course) set up for this.  
                 //For example:
-				var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/usersAndroidId");
+				var ref = new Firebase("https://sassonsamia.firebaseio.com/usersAndroidId");
 				if($rootScope.user == null)
 				{
 					return;

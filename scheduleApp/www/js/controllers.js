@@ -3,8 +3,9 @@ angular.module('starter.controllers', [])
 .controller('AppCtrl', function($scope, $ionicModal, $timeout,$rootScope,$firebase, $firebaseSimpleLogin) {
 	$rootScope.roomNumber = 0; 
 	$rootScope.favicon = '<img class="img img-circle" src="img/Spiralla_icon_shakof.png"/>';
-	$rootScope.logo = 'img/Spiralla_logo_shakof.png'
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	//$rootScope.logo = 'img/Spiralla_logo_shakof.png'
+	$rootScope.logo = ''
+	var ref = new Firebase("https://sassonsamia.firebaseio.com");
 	$scope.loginObj = $firebaseSimpleLogin(ref);
 	
 	//Home Message Board
@@ -44,7 +45,7 @@ angular.module('starter.controllers', [])
 		auth.logout();
 	};
 	
-	var authRef = new Firebase("https://scorching-fire-7327.firebaseio.com/.info/authenticated");
+	var authRef = new Firebase("https://sassonsamia.firebaseio.com/.info/authenticated");
 	authRef.on("value", function(snap) {
 	  if (snap.val() === true) {
 		console.log("authenticated");
@@ -57,7 +58,7 @@ angular.module('starter.controllers', [])
 
 	//Check to see if the user has already got a color
 	isUserColorExists = function(user,callback){
-			new Firebase('https://scorching-fire-7327.firebaseio.com/usersColor/'+user.uid).once('value', function(snap) {
+			new Firebase('https://sassonsamia.firebaseio.com/usersColor/'+user.uid).once('value', function(snap) {
 			callback(snap.val())
 		});
 	}
@@ -139,9 +140,8 @@ angular.module('starter.controllers', [])
 				dayClick: function(date,jsEvent,view) {
 								$scope.addEvent(date)
 							},
-				eventClick: function(date,jsEvent,view){
-					//syncEventsArray.$remove(date);
-					//$scope.openModal();
+				eventClick: function(event,jsEvent,view){
+					roomServices.removeEventFromRoom($rootScope.roomNumber,event);
 				}
 			}
 		};
@@ -149,44 +149,15 @@ angular.module('starter.controllers', [])
 	//Add Event to calendar function
 	$scope.addEvent = function(date) {
 		// Popup to show when entering new Appoitment to enter description
-		var myPopup = $ionicPopup.show({
-			template: '<input type="text" ng-model="data.description">',
-			title: 'Enter Description',
-			subTitle: 'תיאור עם מי יש לי פגישה',
-			scope: $scope,
-			buttons: [
-			  { text: 'Cancel' },
-			  {
-				text: '<b>Save</b>',
-				type: 'button-royal',
-				onTap: function(e) {
-				  if (!$scope.data.description) {
-					//don't allow the user to close unless he enters wifi password
-					e.preventDefault();
-				  } else {
-					return $scope.data.description;
-				  }
-				}
-			  },
-			]
-		});
-		myPopup.then(function(res) {
-			if($scope.data.description != undefined)
-			{
-				//After Popup , push the newly event
-				console.log('Tapped!', res);
-				if(window.cordova != null){
-					cordova.plugins.Keyboard.close();
-				}
-				var endDate = new Date(date.toString());
-				endDate.addHours(1);
-				
-				event = roomServices.addEventToRoom($rootScope.roomNumber,date,endDate,$scope.data.description);
-				//angular.element('#calendar').fullCalendar('render');
-				angular.element('#calendar').fullCalendar( 'changeView', 'month' )
-				$scope.data.description = null;
-			}
-		});
+		if(window.cordova != null){
+			cordova.plugins.Keyboard.close();
+		}
+		var endDate = new Date(date.toString());
+		endDate.addHours(1);
+		
+		event = roomServices.addEventToRoom($rootScope.roomNumber,date,endDate);
+		//angular.element('#calendar').fullCalendar('render');
+		angular.element('#calendar').fullCalendar( 'changeView', 'month' )
 	}
 	
 	//Switch to another Room (display that room's event)
@@ -214,10 +185,7 @@ angular.module('starter.controllers', [])
 		}
 	}
 	
-	//$scope.eventSources = [roomServices.getRoomEventArray($rootScope.roomNumber)]
 	$scope.eventSources1 = [roomServices.getRoomEventArray(0)]
-	$scope.eventSources2 = [roomServices.getRoomEventArray(1)]
-	$scope.eventSources3 = [roomServices.getRoomEventArray(2)]
 	
 	$ionicModal.fromTemplateUrl('templates/eventDetails.html',{
 		scope : $scope,
@@ -256,7 +224,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AddDetailedEventCtrl',function($scope,$firebase,$rootScope,dateServices,$ionicModal){
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/events");
+	var ref = new Firebase("https://sassonsamia.firebaseio.com/events");
 		
 	var sync = $firebase(ref);
 			
@@ -313,9 +281,8 @@ angular.module('starter.controllers', [])
 .factory('roomServices',function(dateServices,$rootScope,$firebase){
 	var service = {};
 	service.ROOM_COUNT = 3;
-	console.log('sdf')
 	var rooms = {};
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	var ref = new Firebase("https://sassonsamia.firebaseio.com");
 	var deletedEventsLog = $firebase(ref.child('deleted_events_log'));
 	
 	for(i=0;i<service.ROOM_COUNT;i++)
@@ -343,7 +310,6 @@ angular.module('starter.controllers', [])
 			{
 				if(isMyEvent(rooms[index][i]))
 				{
-					console.log('sdf')
 					items.push(rooms[index][i]);
 				}
 			}
@@ -351,7 +317,7 @@ angular.module('starter.controllers', [])
 		}
 	}
 	
-	service.addEventToRoom = function(index,date,endDate,eventDescription){
+	service.addEventToRoom = function(index,date,endDate){
 	
 		//A Check that the given date is not too far ( date < today + 1 month )
 		if(dateServices.isDateExceedDatesLimits(date))
@@ -374,7 +340,6 @@ angular.module('starter.controllers', [])
 			title:  $rootScope.user.displayName,
 			borderColor : $rootScope.user.color,
 			allDay:false,
-			description : eventDescription,
 			unixStartTime:date.getTime(),
 			unixEndTime:endDate.getTime(),
 			user: user
@@ -402,7 +367,6 @@ angular.module('starter.controllers', [])
 				deletedEventsLog.$push({
 										start: event.start,
 										end :  event.end,
-										description : event.description,
 										deletingUser:  $rootScope.user.displayName,
 										unixStartTime:event.unixStartTime,
 										unixEndTime:event.unixEndTime
@@ -421,7 +385,6 @@ angular.module('starter.controllers', [])
 									start: event.start,
 									end :  event.end,
 									deletingUser:  $rootScope.user.displayName,
-									description : event.description,
 									unixStartTime:event.unixStartTime,
 									unixEndTime:event.unixEndTime
 						});
@@ -431,7 +394,7 @@ angular.module('starter.controllers', [])
 		}
 		
 	//A Function that returns true is the event given is mine ( according to the fbId )
-	isMyEvent = function(event){
+	isMyEvent = function(event) {
 		if(event.user.uid == $rootScope.user.uid)
 			return true;
 		return false;
@@ -444,7 +407,7 @@ angular.module('starter.controllers', [])
 	var master = {};
 
 	//Loading Firebase DB
-	//var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/masterUsers");
+	//var ref = new Firebase("https://sassonsamia.firebaseio.com/masterUsers");
 	master.isMasterUser = function(user,callback){
 			if(user == null)
 			{
@@ -454,7 +417,7 @@ angular.module('starter.controllers', [])
 				return;
 			}
 			
-			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
+			new Firebase('https://sassonsamia.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
 				val = snap.val()
 				if(val == null || val == false){
 					callback(false)
@@ -469,7 +432,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AdminCtrl',function($firebase,$rootScope,$scope,$http){
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	var ref = new Firebase("https://sassonsamia.firebaseio.com");
 	
 	$scope.users = []
 	ref.child('usersAndroidId').once('value',function(snapshot){
