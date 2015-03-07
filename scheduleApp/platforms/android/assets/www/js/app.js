@@ -4,9 +4,9 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic','starter.controllers','ui.calendar','ui.bootstrap','firebase','ui.router','pickadate'])
+var app = angular.module('starter', ['ionic','starter.controllers','ui.calendar','ui.bootstrap','firebase','ui.router','pickadate'])
 
-.run(function($ionicPlatform,$rootScope, $location,$ionicViewService, $firebaseSimpleLogin, $state, $window,PushProcessingService) {
+.run(function($ionicPlatform,$rootScope, $location,$ionicViewService, $firebaseSimpleLogin, $state, $window,PushProcessingService,masterServices) {
 	//run once for the app
 	PushProcessingService.initialize();
   $ionicPlatform.ready(function() {
@@ -34,10 +34,20 @@ angular.module('starter', ['ionic','starter.controllers','ui.calendar','ui.boots
 		//do Nothing
 	});
 	
+	$rootScope.isMaster = false
+	masterServices.isMasterUser($rootScope.user,function(value){
+		console.log('is master user ' + value)
+		$rootScope.isMaster = value;
+	});
+	
 	
 
 	$rootScope.$on('$firebaseSimpleLogin:login', function(e, user) {
 		$rootScope.user = user;
+		masterServices.isMasterUser($rootScope.user,function(value){
+			console.log('is master user ' + value)
+			$rootScope.isMaster = value;
+		});
 		//$state.go('app.playlists');
 	});
 
@@ -126,7 +136,7 @@ angular.module('starter', ['ionic','starter.controllers','ui.calendar','ui.boots
       views: {
         'menuContent' :{
           templateUrl: "templates/addEventDetailed.html",
-		  controller: 'AddDetailedEventCtrl'
+		  controller: 'DashCtrl'
         }
       }
     })
@@ -148,7 +158,16 @@ angular.module('starter', ['ionic','starter.controllers','ui.calendar','ui.boots
           controller: 'EventManagerCtrl'
         }
       }
-    });
+    })
+	.state('app.admin',{
+		url : "/admin",
+		views: {
+        'menuContent' :{
+          templateUrl: "templates/adminMessages.html",
+          controller: 'AdminCtrl'
+        }
+      }
+	});
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/');
 })

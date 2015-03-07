@@ -1,3 +1,60 @@
+<script id="my-time-picker-24-hour.tpl.html" type="text/ng-template" class="">
+    <div class="24HourTimePickerChildDiv">
+        <div class="row">
+            <span class="button-small col-offset-20 col-25">
+                <button class="button button-clear button-small button-dark timePickerArrows marginBottom10"
+                        ng-click="increaseHours()">
+                    <i class="icon ion-chevron-up"></i></button>
+                <input type="text" placeholder="" ng-model="time.hours" class="ipBoxes timePickerBoxText" disabled>
+                <button class="button button-clear button-small button-dark timePickerArrows marginTop10"
+                        ng-click="decreaseHours()">
+                    <i class="icon ion-chevron-down"></i></button>
+            </span>
+            <label class="col-10 timePickerColon"> : </label>
+            <span class="button-small col-25">
+                <button class="button button-clear button-small button-dark timePickerArrows marginBottom10"
+                        ng-click="increaseMinutes()"><i class="icon ion-chevron-up"></i></button>
+                <input type="text" placeholder="" ng-model="time.minutes" class="ipBoxes timePickerBoxText" disabled>
+                <button class="button button-clear button-small button-dark timePickerArrows marginTop10"
+                        ng-click="decreaseMinutes()"><i class="icon ion-chevron-down"></i></button>
+            </span>
+        </div>
+    </div>
+</script>
+
+<script id="my-time-picker-24-hour2.tpl.html" type="text/ng-template" class="">
+    <div class="24HourTimePickerChildDiv">
+        <div class="row">
+            <span class="button-small col-offset-20 col-25">
+                <button class="button button-clear button-small button-dark timePickerArrows marginBottom10"
+                        ng-click="increaseHours()">
+                    <i class="icon ion-chevron-up"></i></button>
+                <input type="text" placeholder="" ng-model="time2.hours" class="ipBoxes timePickerBoxText" disabled>
+                <button class="button button-clear button-small button-dark timePickerArrows marginTop10"
+                        ng-click="decreaseHours()">
+                    <i class="icon ion-chevron-down"></i></button>
+            </span>
+            <label class="col-10 timePickerColon"> : </label>
+            <span class="button-small col-25">
+                <button class="button button-clear button-small button-dark timePickerArrows marginBottom10"
+                        ng-click="increaseMinutes()"><i class="icon ion-chevron-up"></i></button>
+                <input type="text" placeholder="" ng-model="time2.minutes" class="ipBoxes timePickerBoxText" disabled>
+                <button class="button button-clear button-small button-dark timePickerArrows marginTop10"
+                        ng-click="decreaseMinutes()"><i class="icon ion-chevron-down"></i></button>
+            </span>
+        </div>
+    </div>
+</script>
+
+<script id="my-date-picker-modal.tpl.html" type="text/ng-template" class="" >
+  <ion-content has-header="true">
+    <div class="padding" style="margin-top:30px;">
+      <div pickadate ng-model="myDate"></div>
+    </div>
+    <button class="button button-full button-dark" ng-click="closedateModal(myDate)">Save</button>
+  </ion-content>
+</script>
+
 <ion-view title="Add Detailed Event">
   <ion-nav-buttons side="left">
     <button menu-toggle="left"class="button button-icon icon ion-navicon"></button>
@@ -17,19 +74,51 @@
 		<input type="text" pick-a-date="date" placeholder="Select Date" /> {{ date }}
   </ion-content-->
   <ion-content class="has-header">
-		<div class="card">
+  		<div class="card">
+			Viewing Room number : {{displayRoomNumber}}
+		</div>
+		</br>
+
+	<div class="list">
+		<div class="item">
 			<label class="item item-input">
 	          <input type="text" 
 	          placeholder="Pick date" 
 	          ng-model="datepicker" 
 	          name="datepicker" 
-	          ng-click="opendateModal()" 
+	          ng-click="opendatePopup()" 
 	          readonly>
 	        </label>
-			<div class="padding" style="margin-top:30px;">
-      <div pickadate ng-model="myDate"></div>
-    </div>
-    <button class="button button-full button-dark" ng-click="closedateModal(myDate)">Save</button>
-	    </div>
+		</div>
+		<div class="item">
+			Start Time
+			<button ng-click="showTimePickerModal(slots[1],'start')" class="button button-block button-stable overflowShow" >
+				<!--"standard-time" is a directive to convert the epoch time to the utc time.-->
+				<standard-time-no-meridian etime='slots[1].epochTime'></standard-time-no-meridian>
+			</button>
+		</div>
+		<div class="item">
+			End Time
+			<button ng-click="showTime2(slots2[1],'start')" class="button button-block button-stable overflowShow" >
+				<!--"standard-time" is a directive to convert the epoch time to the utc time.-->
+				<standard-time-no-meridian etime='slots2[1].epochTime'></standard-time-no-meridian>
+			</button>
+		</div>
+		
+		<div class="item">
+			<input type="text" placeholder="enter event description here or any notes" ng-model="description">
+		</div>
+		<div class="item">
+			Selected Date : {{datepicker}} , {{time.hours}} : {{time.minutes}} 
+			<br/>
+			Event will end at : {{datepicker}} , {{time2.hours}} : {{time2.minutes}} 
+		</div>
+		<button class="button button-block button-dark" ng-click="addEventWrapper(description)">
+			Add Event
+		</button>
+		
+	</div>
+	
+	
 	</ion-content>
 </ion-view>

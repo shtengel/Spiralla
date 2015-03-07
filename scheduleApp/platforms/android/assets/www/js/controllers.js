@@ -67,7 +67,7 @@ angular.module('starter.controllers', [])
 		if(info == null)
 		{
 			//Colour does not exists
-			var objectToPush = { color : getRandomColor()}
+			var objectToPush = { color : getRandomColor(), displayName : $rootScope.user.displayName}
 			ref.child('usersColor/'+$rootScope.user.uid).set(objectToPush);
 			$rootScope.user.color = objectToPush.color;
 		}
@@ -175,10 +175,13 @@ angular.module('starter.controllers', [])
 			{
 				//After Popup , push the newly event
 				console.log('Tapped!', res);
-				if(cordova){
+				if(window.cordova != null){
 					cordova.plugins.Keyboard.close();
 				}
-				event = roomServices.addEventToRoom($rootScope.roomNumber,date,$scope.data.description);
+				var endDate = new Date(date.toString());
+				endDate.addHours(1);
+				
+				event = roomServices.addEventToRoom($rootScope.roomNumber,date,endDate,$scope.data.description);
 				//angular.element('#calendar').fullCalendar('render');
 				angular.element('#calendar').fullCalendar( 'changeView', 'month' )
 				$scope.data.description = null;
@@ -232,13 +235,8 @@ angular.module('starter.controllers', [])
 	
 })
 
-.controller('EventManagerCtrl', function($scope,$rootScope,$timeout,roomServices,masterServices) {
+.controller('EventManagerCtrl', function($scope,$rootScope,$timeout,roomServices) {
 		$scope.displayRoomNumber = $rootScope.roomNumber + 1;
-		$scope.isMaster = false
-		masterServices.isMasterUser($rootScope.user,function(value){
-			console.log('is master user ' + value)
-			$scope.isMaster = value;
-		});
 		
 		var init = function(){
 			roomServices.getMyRoomEventArray($rootScope.roomNumber,function(events){
@@ -312,7 +310,7 @@ angular.module('starter.controllers', [])
     };
 })
 
-.factory('roomServices',function(dateServices,masterServices,$rootScope,$firebase){
+.factory('roomServices',function(dateServices,$rootScope,$firebase){
 	var service = {};
 	service.ROOM_COUNT = 3;
 	console.log('sdf')
@@ -332,35 +330,34 @@ angular.module('starter.controllers', [])
 	}
 	
 	service.getMyRoomEventArray = function(index,callback){
-		masterServices.isMasterUser($rootScope.user,function(isMaster){
-			if(isMaster == true)
+		
+		if($rootScope.isMaster == true)
+		{
+			console.log('master user , return all rooms')
+			callback(rooms[index]);
+		}
+		else
+		{
+			items = []
+			for(i=0;i<rooms[index].length;i++)
 			{
-				callback(rooms[index]);
-			}
-			else
-			{
-				items = []
-				for(i=0;i<rooms[index].length;i++)
+				if(isMyEvent(rooms[index][i]))
 				{
-					if(isMyEvent(rooms[index][i]))
-					{
-						console.log('sdf')
-						items.push(rooms[index][i]);
-					}
+					console.log('sdf')
+					items.push(rooms[index][i]);
 				}
-				callback(items);
 			}
-		});
+			callback(items);
+		}
 	}
 	
-	service.addEventToRoom = function(index,date,eventDescription){
+	service.addEventToRoom = function(index,date,endDate,eventDescription){
 	
 		//A Check that the given date is not too far ( date < today + 1 month )
 		if(dateServices.isDateExceedDatesLimits(date))
 			return;
 		
-		var endDate = new Date(date.toString())
-		endDate.addHours(1)
+		
 		var profile_pic_url = $rootScope.user.thirdPartyUserData.picture;
 		if($rootScope.user.thirdPartyUserData.picture.hasOwnProperty('data')){
 			profile_pic_url = $rootScope.user.thirdPartyUserData.picture.data.url;
@@ -387,6 +384,9 @@ angular.module('starter.controllers', [])
 		if(dateServices.isTimeAvailable(rooms[index],event)){
 			rooms[index].$add(event);
 		}
+		else{
+			alert('Cannot book this time .. already been taken by someone else');
+		}
 		
 		return event;
 	}
@@ -412,20 +412,21 @@ angular.module('starter.controllers', [])
 				{
 					console.log('not my event')
 					//if not , master user can do anything
-					masterServices.isMasterUser($rootScope.user,function(userobj){
-						if(userobj != null){
-							rooms[index].$remove(event);
-							event['deleting_user'] = $rootScope.user.displayName;
-							deletedEventsLog.$push({
-										start: event.start,
-										end :  event.end,
-										deletingUser:  $rootScope.user.displayName,
-										description : event.description,
-										unixStartTime:event.unixStartTime,
-										unixEndTime:event.unixEndTime
-							});
-						}
-					});
+					
+					if($rootScope.isMaster){
+						console.log('deleting..isMaster = true')
+						rooms[index].$remove(event);
+						event['deleting_user'] = $rootScope.user.displayName;
+						deletedEventsLog.$push({
+									start: event.start,
+									end :  event.end,
+									deletingUser:  $rootScope.user.displayName,
+									description : event.description,
+									unixStartTime:event.unixStartTime,
+									unixEndTime:event.unixEndTime
+						});
+					}
+					
 				}
 		}
 		
@@ -449,7 +450,10 @@ angular.module('starter.controllers', [])
 			{
 				// redirect back to login
 				$state.go('app.login');
+				callback(false)
+				return;
 			}
+			
 			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
 				val = snap.val()
 				if(val == null || val == false){
@@ -462,6 +466,70 @@ angular.module('starter.controllers', [])
 	}
 	
 	return master;
+})
+
+.controller('AdminCtrl',function($firebase,$rootScope,$scope,$http){
+	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	
+	$scope.users = []
+	ref.child('usersAndroidId').once('value',function(snapshot){
+		users = snapshot.val();
+		console.log(snapshot.val());
+		for(var prop in users){
+			if(users.hasOwnProperty(prop) && (prop.lastIndexOf("facebook", 0) === 0 || prop.lastIndexOf("google", 0))){
+				for (var device in users[prop]){
+					$scope.users.push({
+										displayName :users[prop][device]["displayName"],
+										model : users[prop][device]["model"],
+										gcmId : users[prop][device]["gcmId"],
+										checked : true
+									});
+				}
+			}
+		}
+	});
+	
+	var sync = $firebase(ref.child('messageBoardMessages'));
+	$scope.syncedMessagesBoardArray = sync.$asArray();
+	
+	$scope.addMessage = function(messageText){
+		if(messageText != ''){
+			$scope.syncedMessagesBoardArray.$add({
+				text:messageText
+			});
+			if(window.cordova){
+				cordova.plugins.Keyboard.close();
+			}
+		}
+		
+	}
+	
+	$scope.sendGCMNotification = function(messageText){
+			url = '/gcm/sendNotification'
+			ids = []
+			for(i =0;i<$scope.users.length;i++) {
+				if($scope.users[i]["checked"] == true) {
+					ids.push($scope.users[i]["gcmId"])
+				}
+			}
+			data = {
+					 message: messageText,
+					 regIds : ids
+					}
+			$http.post(url,data).success(function(){
+			})
+			.error(function(){
+				
+			});
+			
+			if(window.cordova){
+				cordova.plugins.Keyboard.close();
+			}	
+		}
+	
+	$scope.removeMessage = function(message){
+		$scope.syncedMessagesBoardArray.$remove(message);
+	};
 })
 
 .factory('dateServices',function($firebase){

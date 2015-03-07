@@ -9,3 +9,29 @@
     .fc-agenda-slots td div, .fc-agenda-slots tr{
     	height: 25px!important
     }
+
+.timePickerColon {
+    padding-top: 38px;
+    text-align: center;
+}
+
+.timePickerArrows {
+    padding-left: 15px;
+}
+
+.timePickerBoxText {
+    text-align: center;
+    border: 1px solid #dddddd !important;
+}
+
+.bar.bar-stable, .tabs {
+    box-shadow: 0px 0px 5px #555;
+}
+
+.overflowShow {
+    white-space: normal !important;
+}
+
+.pickadate-body{
+	background-color:white !important;
+}
