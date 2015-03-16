@@ -64,8 +64,14 @@ C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\img\favic
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\img\ionic.png \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\img\Spiralla_icon_shakof.png \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\img\Spiralla_logo_shakof.png \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\adminCtrl.js \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\app.js \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\Controllers \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\controllers.js \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\Directives \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\Services \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\Controllers\timerpickerCtrl.js \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\js\Directives\timerpickerDirectives.js \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\lib\angular \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\lib\angular-animate \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\lib\angular-bootstrap \
@@ -1256,6 +1262,7 @@ C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\plugins\o
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\plugins\org.apache.cordova.statusbar\www \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\plugins\org.apache.cordova.statusbar\www\statusbar.js \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\templates\addEventDetailed.html \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\templates\adminMessages.html \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\templates\datemodal.html \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\templates\eventDetails.html \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\assets\www\templates\eventManage.html \

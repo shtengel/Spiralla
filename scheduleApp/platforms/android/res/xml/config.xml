@@ -35,4 +35,7 @@
         <param name="onload" value="true" />
         <param name="ios-package" onload="true" value="IonicKeyboard" />
     </feature>
+    <feature name="OrientationLock">
+        <param name="android-package" value="com.plugin.phonegap.OrientationLock" />
+    </feature>
 </widget>

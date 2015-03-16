@@ -117,13 +117,18 @@ angular.module('starter.controllers', [])
    });
 })
 .controller('PlaylistsCtrl', function($scope,$state,$firebase,$rootScope,$ionicModal,$ionicPopup,roomServices) {
+	if(window.plugins.orientationLock) {
+		console.log('locking landscape')
+		window.plugins.orientationLock.lock("landscape");
+	}
 	if($rootScope.user == null)
 	{
 		// redirect back to login
 		$state.go('app.login');
 	}
 	$scope.data = {}
-	
+	console.log($rootScope.roomNumber)
+	angular.element('#room'+$rootScope.roomNumber).removeClass('button-dark');
 	angular.element('#room'+$rootScope.roomNumber).addClass('button-dark');
 	
 	//Calendar Config
@@ -131,6 +136,14 @@ angular.module('starter.controllers', [])
 		calendar:{
 			editable : false,
 			businessHours: false,
+			weekMode : 'liquid',
+			aspectRatio : 2,
+			slotMinutes : 30,
+			axisFormat : 'HH:mm',
+			allDaySlot : false,
+			timeFormat :'HH:mm{ - HH:mm} ',
+			minTime : 8,
+			maxTime : '23:30',
 			header:{
 				left :'month agendaWeek',
 				center : 'title',
@@ -217,7 +230,7 @@ angular.module('starter.controllers', [])
 	//$scope.eventSources = [roomServices.getRoomEventArray($rootScope.roomNumber)]
 	$scope.eventSources1 = [roomServices.getRoomEventArray(0)]
 	$scope.eventSources2 = [roomServices.getRoomEventArray(1)]
-	$scope.eventSources3 = [roomServices.getRoomEventArray(2)]
+	//$scope.eventSources3 = [roomServices.getRoomEventArray(2)]
 	
 	$ionicModal.fromTemplateUrl('templates/eventDetails.html',{
 		scope : $scope,
@@ -262,9 +275,9 @@ angular.module('starter.controllers', [])
 			
 	var syncEventsArray = sync.$asArray();
 	
-	$scope.addEvent = function(startTime,endTime,note){
+	$scope.addEvent = function(startTime,endTime,note) {
 		//A Check that the given date is not too far ( date < today + 1 month )
-		if(dateServices.isDateExceedDatesLimits(startTime))
+		if(dateServices.isDateExceedDatesLimits(startTime,endTime))
 			return;
 		
 		var user = { 'displayName' : $rootScope.user.displayName,
@@ -354,7 +367,7 @@ angular.module('starter.controllers', [])
 	service.addEventToRoom = function(index,date,endDate,eventDescription){
 	
 		//A Check that the given date is not too far ( date < today + 1 month )
-		if(dateServices.isDateExceedDatesLimits(date))
+		if(dateServices.isDateExceedDatesLimits(date,endDate))
 			return;
 		
 		
@@ -550,10 +563,17 @@ angular.module('starter.controllers', [])
 		return true;
 	}
 	
-	services.isDateExceedDatesLimits = function(date){
+	services.isDateExceedDatesLimits = function(date,endDate) {
 		var dateNow = new Date()
 		var dateLimit = dateNow.setMonth(dateNow.getMonth()+1)
-		if( date > dateLimit){			
+		if( date > dateLimit){	
+			alert('לא ניתן להזמין חודש מראש')
+			return true;
+		}
+		console.log(endDate)
+		console.log(endDate.getHours())
+		if(date.getHours() >=23 ||endDate.getHours() < 8 || endDate.getHours() >= 23 ) {
+			alert('ניתן להזמין רק בין השעות 8:00 עד 22:30')
 			return true;
 		}
 		return false;

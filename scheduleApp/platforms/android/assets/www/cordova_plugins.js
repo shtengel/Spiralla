@@ -27,6 +27,13 @@ module.exports = [
         "clobbers": [
             "cordova.plugins.Keyboard"
         ]
+    },
+    {
+        "file": "plugins/com.phonegap.plugins.OrientationLock/www/orientationLock.js",
+        "id": "com.phonegap.plugins.OrientationLock.OrientationLock",
+        "clobbers": [
+            "OrientationLock"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -36,7 +43,8 @@ module.exports.metadata =
     "org.apache.cordova.device": "0.2.12",
     "org.apache.cordova.console": "0.2.11",
     "org.apache.cordova.statusbar": "0.1.8",
-    "com.ionic.keyboard": "1.0.3"
+    "com.ionic.keyboard": "1.0.3",
+    "com.phonegap.plugins.OrientationLock": "0.1"
 }
 // BOTTOM OF METADATA
 });
