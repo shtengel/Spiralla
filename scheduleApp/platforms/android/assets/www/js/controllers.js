@@ -4,7 +4,7 @@ angular.module('starter.controllers', [])
 	$rootScope.roomNumber = 0; 
 	$rootScope.favicon = '<img class="img img-circle" src="img/Spiralla_icon_shakof.png"/>';
 	$rootScope.logo = 'img/Spiralla_logo_shakof.png'
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	var ref = new Firebase("https://spiralla.firebaseio.com/");
 	$scope.loginObj = $firebaseSimpleLogin(ref);
 	
 	//Home Message Board
@@ -44,7 +44,7 @@ angular.module('starter.controllers', [])
 		auth.logout();
 	};
 	
-	var authRef = new Firebase("https://scorching-fire-7327.firebaseio.com/.info/authenticated");
+	var authRef = new Firebase("https://spiralla.firebaseio.com//.info/authenticated");
 	authRef.on("value", function(snap) {
 	  if (snap.val() === true) {
 		console.log("authenticated");
@@ -57,7 +57,7 @@ angular.module('starter.controllers', [])
 
 	//Check to see if the user has already got a color
 	isUserColorExists = function(user,callback){
-			new Firebase('https://scorching-fire-7327.firebaseio.com/usersColor/'+user.uid).once('value', function(snap) {
+			new Firebase('https://spiralla.firebaseio.com//usersColor/'+user.uid).once('value', function(snap) {
 			callback(snap.val())
 		});
 	}
@@ -117,13 +117,18 @@ angular.module('starter.controllers', [])
    });
 })
 .controller('PlaylistsCtrl', function($scope,$state,$firebase,$rootScope,$ionicModal,$ionicPopup,roomServices) {
+	if(window.plugins.orientationLock) {
+		console.log('locking landscape')
+		window.plugins.orientationLock.lock("landscape");
+	}
 	if($rootScope.user == null)
 	{
 		// redirect back to login
 		$state.go('app.login');
 	}
 	$scope.data = {}
-	
+	console.log($rootScope.roomNumber)
+	angular.element('#room'+$rootScope.roomNumber).removeClass('button-dark');
 	angular.element('#room'+$rootScope.roomNumber).addClass('button-dark');
 	
 	//Calendar Config
@@ -131,6 +136,14 @@ angular.module('starter.controllers', [])
 		calendar:{
 			editable : false,
 			businessHours: false,
+			weekMode : 'liquid',
+			aspectRatio : 2,
+			slotMinutes : 30,
+			axisFormat : 'HH:mm',
+			allDaySlot : false,
+			timeFormat :'HH:mm{ - HH:mm} ',
+			minTime : 8,
+			maxTime : '23:30',
 			header:{
 				left :'month agendaWeek',
 				center : 'title',
@@ -217,7 +230,7 @@ angular.module('starter.controllers', [])
 	//$scope.eventSources = [roomServices.getRoomEventArray($rootScope.roomNumber)]
 	$scope.eventSources1 = [roomServices.getRoomEventArray(0)]
 	$scope.eventSources2 = [roomServices.getRoomEventArray(1)]
-	$scope.eventSources3 = [roomServices.getRoomEventArray(2)]
+	//$scope.eventSources3 = [roomServices.getRoomEventArray(2)]
 	
 	$ionicModal.fromTemplateUrl('templates/eventDetails.html',{
 		scope : $scope,
@@ -256,15 +269,20 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AddDetailedEventCtrl',function($scope,$firebase,$rootScope,dateServices,$ionicModal){
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/events");
+	if(window.plugins.orientationLock) {
+		window.plugins.orientationLock.unlock()
+		console.log('portrait')
+		window.plugins.orientationLock.lock("landscape")
+	}
+	var ref = new Firebase("https://spiralla.firebaseio.com//events");
 		
 	var sync = $firebase(ref);
 			
 	var syncEventsArray = sync.$asArray();
 	
-	$scope.addEvent = function(startTime,endTime,note){
+	$scope.addEvent = function(startTime,endTime,note) {
 		//A Check that the given date is not too far ( date < today + 1 month )
-		if(dateServices.isDateExceedDatesLimits(startTime))
+		if(dateServices.isDateExceedDatesLimits(startTime,endTime))
 			return;
 		
 		var user = { 'displayName' : $rootScope.user.displayName,
@@ -315,7 +333,7 @@ angular.module('starter.controllers', [])
 	service.ROOM_COUNT = 3;
 	console.log('sdf')
 	var rooms = {};
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	var ref = new Firebase("https://spiralla.firebaseio.com/");
 	var deletedEventsLog = $firebase(ref.child('deleted_events_log'));
 	
 	for(i=0;i<service.ROOM_COUNT;i++)
@@ -354,7 +372,7 @@ angular.module('starter.controllers', [])
 	service.addEventToRoom = function(index,date,endDate,eventDescription){
 	
 		//A Check that the given date is not too far ( date < today + 1 month )
-		if(dateServices.isDateExceedDatesLimits(date))
+		if(dateServices.isDateExceedDatesLimits(date,endDate))
 			return;
 		
 		
@@ -444,7 +462,7 @@ angular.module('starter.controllers', [])
 	var master = {};
 
 	//Loading Firebase DB
-	//var ref = new Firebase("https://scorching-fire-7327.firebaseio.com/masterUsers");
+	//var ref = new Firebase("https://spiralla.firebaseio.com//masterUsers");
 	master.isMasterUser = function(user,callback){
 			if(user == null)
 			{
@@ -454,7 +472,7 @@ angular.module('starter.controllers', [])
 				return;
 			}
 			
-			new Firebase('https://scorching-fire-7327.firebaseio.com/masterUsers/'+user.uid).once('value', function(snap) {
+			new Firebase('https://spiralla.firebaseio.com//masterUsers/'+user.uid).once('value', function(snap) {
 				val = snap.val()
 				if(val == null || val == false){
 					callback(false)
@@ -469,7 +487,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AdminCtrl',function($firebase,$rootScope,$scope,$http){
-	var ref = new Firebase("https://scorching-fire-7327.firebaseio.com");
+	var ref = new Firebase("https://spiralla.firebaseio.com/");
 	
 	$scope.users = []
 	ref.child('usersAndroidId').once('value',function(snapshot){
@@ -550,10 +568,17 @@ angular.module('starter.controllers', [])
 		return true;
 	}
 	
-	services.isDateExceedDatesLimits = function(date){
+	services.isDateExceedDatesLimits = function(date,endDate) {
 		var dateNow = new Date()
 		var dateLimit = dateNow.setMonth(dateNow.getMonth()+1)
-		if( date > dateLimit){			
+		if( date > dateLimit){	
+			alert('לא ניתן להזמין חודש מראש')
+			return true;
+		}
+		console.log(endDate)
+		console.log(endDate.getHours())
+		if(date.getHours() >=23 ||endDate.getHours() < 8 || endDate.getHours() >= 23 ) {
+			alert('ניתן להזמין רק בין השעות 8:00 עד 22:30')
 			return true;
 		}
 		return false;

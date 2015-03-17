@@ -10,6 +10,9 @@
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
     </feature>
+    <feature name="OrientationLock">
+        <param name="android-package" value="com.plugin.phonegap.OrientationLock" />
+    </feature>
     <name>Spiralla</name>
     <description>
         Spiralla-psy Manage Application
@@ -34,8 +37,5 @@
         <param name="android-package" value="com.ionic.keyboard.IonicKeyboard" />
         <param name="onload" value="true" />
         <param name="ios-package" onload="true" value="IonicKeyboard" />
-    </feature>
-    <feature name="OrientationLock">
-        <param name="android-package" value="com.plugin.phonegap.OrientationLock" />
     </feature>
 </widget>

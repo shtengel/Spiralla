@@ -40,15 +40,13 @@ var app = angular.module('starter', ['ionic','starter.controllers','ui.calendar'
 		$rootScope.isMaster = value;
 	});
 	
-	
-
 	$rootScope.$on('$firebaseSimpleLogin:login', function(e, user) {
 		$rootScope.user = user;
 		masterServices.isMasterUser($rootScope.user,function(value){
 			console.log('is master user ' + value)
 			$rootScope.isMaster = value;
 		});
-		//$state.go('app.playlists');
+		$state.go('app.playlists');
 	});
 
 	$rootScope.$on('$firebaseSimpleLogin:logout', function(e, user) {
@@ -79,8 +77,15 @@ var app = angular.module('starter', ['ionic','starter.controllers','ui.calendar'
   }
   
   $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+  
+	if(window.plugins.orientationLock) {
+		window.plugins.orientationLock.unlock()
+		console.log('portrait')
+		window.plugins.orientationLock.lock("portrait")
+	}
     // if route requires auth and user is not logged in
     if (isRouteRequireAuth(to) && !isUserLoggedIn()) {
+	
 	// using the ionicViewService to hide the back button on next view
 	$ionicViewService.nextViewOptions({
 	   disableBack: true

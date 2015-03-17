@@ -79,6 +79,7 @@ var app = angular.module('starter', ['ionic','starter.controllers','ui.calendar'
   $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
   
 	if(window.plugins.orientationLock) {
+		window.plugins.orientationLock.unlock()
 		console.log('portrait')
 		window.plugins.orientationLock.lock("portrait")
 	}

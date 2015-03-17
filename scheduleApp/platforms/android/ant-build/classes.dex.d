@@ -16,6 +16,16 @@ C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\co
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\plugin\gcm\GCMIntentService.class \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\plugin\gcm\PushHandlerActivity.class \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\plugin\gcm\PushPlugin.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\plugin\phonegap\OrientationLock.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\BuildConfig.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\HelloCordova.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\Manifest$permission.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\Manifest.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\R$attr.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\R$drawable.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\R$string.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\R$xml.class \
+C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\com\psy\spiralla\R.class \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\org\apache\cordova\device\Device.class \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\org\apache\cordova\inappbrowser\InAppBrowser$1.class \
 C:\Users\Gal\Desktop\Spiralla\scheduleApp\platforms\android\ant-build\classes\org\apache\cordova\inappbrowser\InAppBrowser$2.class \
